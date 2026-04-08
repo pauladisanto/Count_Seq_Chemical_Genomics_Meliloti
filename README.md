@@ -50,3 +50,8 @@ Path to the FASTA file containing the unique H signatures.
 
 Used to build the Salmon index
 Only H signatures are analysed in this workflow
+
+
+BASH scripts were developed using a template script written by Sunniva Sigurdardóttir (GitHub: sunnivass)
+
+For any questions, you can contact me at: gdisantomeztler@gmail.com
