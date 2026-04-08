@@ -1,0 +1,22 @@
+{
+    "index_version": 4,
+    "reference_gfa": [
+        "/home/paula-di-santo/Documents/Meliloti_sequences/Nextflow_pipeline/salmon_index/H_signatures_unique"
+    ],
+    "sampling_type": "sshash",
+    "k": 21,
+    "num_kmers": 1639,
+    "num_contigs": 412,
+    "seq_length": 9879,
+    "have_ref_seq": true,
+    "have_edge_vec": false,
+    "SeqHash": "8a278bbd4594e4c93f0f60a752e06ac586f11b1d090f5a70099f458a2b95ef1a",
+    "NameHash": "0137882e34a01d43b928a07faf4ddd6827b04ae7211564bae547b466aac497ef",
+    "SeqHash512": "8e39a641e14a7f2b802d1cc59a8f5cb64660ffa17d6f95e7ee2afce3da5e42f265b4b10e4677ec35ed0209f47b9a941e8dd7015288f24e5509a923d4888c7017",
+    "NameHash512": "797e3024a4f5b62655755e36cb54906cebc1a86d1910a0cc051f95e4c57941ddc2ffe2eca908dc0a92ea15d36c1be396c9093ba0fbfceeeab05c7b8628379f72",
+    "DecoySeqHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "DecoyNameHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "num_decoys": 0,
+    "first_decoy_index": 18446744073709551615,
+    "keep_duplicates": false
+}
