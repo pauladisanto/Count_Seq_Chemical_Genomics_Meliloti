@@ -7,6 +7,10 @@ ncpus=7
 while getopts "p:" flag; do
     case "${flag}" in
         p) pdir="${OPTARG}" ;;
+        *)
+            echo "Usage: $0 -p <project_directory>"
+            exit 1
+            ;;
     esac
 done
 
@@ -45,74 +49,15 @@ for f in "${files[@]}"; do
     name_seq=$(basename "${f}")
     echo "Processing ${name_seq} ..."
 
-    tmp="${name_seq%_trimmed_merged_demux.fastq.gz}"
-    pool_name="${tmp%%_*}"
-    ngs_name="${tmp#*_}"
-
-    echo "Detected POOL: ${pool_name}"
-    echo "Detected NGS_name: ${ngs_name}"
-
-    if [ "${pool_name}" = "unknown" ]; then
-        echo "WARNING: Skipping unknown pool file: ${name_seq}"
-        continue
-    fi
-
-    sample_fasta="${pdir}/demultiplexed_CONDITION/${pool_name}_${ngs_name}_metadata_R.fasta"
-
-    awk -v pool="${pool_name}" -v sample="${ngs_name}" '
-    BEGIN {
-        keep = 0
-    }
-
-    /^>/ {
-        header = substr($0, 2)
-        split(header, parts, "__")
-
-        this_pool  = parts[1]
-        this_rep   = parts[2]
-        this_label = parts[3]
-        this_ngs   = parts[4]
-
-        if (this_pool == pool && this_ngs == sample) {
-            keep = 1
-            current_header = this_rep "_" this_label
-        } else {
-            keep = 0
-        }
-        next
-    }
-
-    keep {
-        seq = $0
-        gsub(/ /, "", seq)
-
-        if (!(seq in seen_seq)) {
-            print ">" current_header
-            print seq
-            seen_seq[seq] = 1
-        }
-        keep = 0
-    }
-    ' "${meta_fasta}" > "${sample_fasta}"
-
-    if [ ! -s "${sample_fasta}" ]; then
-        echo "WARNING: No matching reverse metadata entries found for POOL=${pool_name}, NGS_name=${ngs_name}. Skipping."
-        rm -f "${sample_fasta}"
-        continue
-    fi
-
-    echo "Using reverse metadata entries:"
-    grep "^>" "${sample_fasta}" || true
+    rm -f "${pdir}"/demultiplexed_CONDITION/*_"${name_seq%.fastq.gz}"_demux_a.fastq.gz
 
     if ! gzip -t "${f}" 2>/dev/null; then
         echo "ERROR: Input file is not a valid gzip file: ${f}"
         exit 1
     fi
 
-    rm -f "${pdir}"/demultiplexed_CONDITION/*_"${name_seq%.fastq.gz}"_demux_a.fastq.gz
-
     cutadapt \
-        -a "file:${sample_fasta}" \
+        -b "file:${meta_fasta}" \
         -e 0 \
         -O 26 \
         --minimum-length 20 \
@@ -128,9 +73,11 @@ for f in "${files[@]}"; do
         continue
     fi
 
+    valid_outputs=0
+
     for out in "${outputs[@]}"; do
         if [ ! -s "${out}" ]; then
-            echo "WARNING: Output file is empty: ${out}. Removing and continuing."
+            echo "WARNING: Output file is empty: ${out}. Removing."
             rm -f "${out}"
             continue
         fi
@@ -139,7 +86,17 @@ for f in "${files[@]}"; do
             echo "ERROR: Invalid gzip output produced: ${out}"
             exit 1
         fi
+
+        valid_outputs=$((valid_outputs + 1))
     done
+
+    if [ "${valid_outputs}" -eq 0 ]; then
+        echo "ERROR: All CONDITION outputs were empty or invalid for ${name_seq}"
+        exit 1
+    fi
+
+    echo "Validated CONDITION output files for ${name_seq}:"
+    printf '  %s\n' "${pdir}"/demultiplexed_CONDITION/*_"${name_seq%.fastq.gz}"_demux_a.fastq.gz
 done
 
 echo -e "\n\n\n >>> FINISHED DEMULTIPLEX CONDITION <<< \n\n\n"

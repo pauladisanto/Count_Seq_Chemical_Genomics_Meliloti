@@ -1,15 +1,20 @@
 nextflow.enable.dsl=2
 
 params.input_dir         = null
-params.metadata_csv      = null
+params.metadata_f        = null
+params.metadata_r        = null
 params.salmon_fasta      = null
 
 if ( !params.input_dir ) {
     error "Please provide --input_dir"
 }
 
-if ( !params.metadata_csv ) {
-    error "Please provide --metadata_csv"
+if ( !params.metadata_f ) {
+    error "Please provide --metadata_f"
+}
+
+if ( !params.metadata_r ) {
+    error "Please provide --metadata_r"
 }
 
 if ( !params.salmon_fasta ) {
@@ -18,13 +23,14 @@ if ( !params.salmon_fasta ) {
 
 workflow {
     Channel.of(params.input_dir).set { input_dir_ch }
-    Channel.of(params.metadata_csv).set { metadata_csv_ch }
+    Channel.of(params.metadata_f).set { metadata_f_ch }
+    Channel.of(params.metadata_r).set { metadata_r_ch }
     Channel.of(params.salmon_fasta).set { salmon_fasta_ch }
 
     made_dirs    = CREATE_DIRS(input_dir_ch)
     qc_done      = QC_AND_TRIMMING(made_dirs)
     merged       = BBMERGE_READS(qc_done)
-    meta_done    = GENERATE_METADATA_FASTA(metadata_csv_ch.combine(merged))
+    meta_done    = PREPARE_METADATA_FASTA(metadata_f_ch.combine(metadata_r_ch).combine(merged))
     demux1       = DEMULTIPLEX_POOL(meta_done)
     demux2       = DEMULTIPLEX_CONDITION(demux1)
     cleaned      = REMOVE_COMMON_SEQUENCES(demux2)
@@ -91,51 +97,20 @@ process BBMERGE_READS {
     """
 }
 
-process GENERATE_METADATA_FASTA {
+process PREPARE_METADATA_FASTA {
 
     tag "${input_dir}"
 
     input:
-    tuple val(metadata_csv), val(input_dir)
+    tuple val(metadata_f), val(metadata_r), val(input_dir)
 
     output:
     val input_dir
 
     script:
     """
-    rm -f "${input_dir}/metadata_F.fasta" "${input_dir}/metadata_R.fasta"
-
-    awk -F',' '
-    NR==1 {
-        for(i=1;i<=NF;i++){
-            if(\$i=="Primer_name_F") nameF=i
-            if(\$i=="Primer_sequence_F") seqF=i
-            if(\$i=="NGS_name") ngs=i
-        }
-        next
-    }
-    {
-        gsub(/ /,"",\$seqF)
-        print ">"\$nameF"_"\$ngs"\\n"\$seqF >> "${input_dir}/metadata_F.fasta"
-    }
-    ' "${metadata_csv}"
-
-    awk -F',' '
-    NR==1 {
-        for(i=1;i<=NF;i++){
-            if(\$i=="Primer_name_F") pool=i
-            if(\$i=="Primer_name_R") rep=i
-            if(\$i=="Primer_sequence_R") seqR=i
-            if(\$i=="Internal_label_2") label2=i
-            if(\$i=="NGS_name") ngs=i
-        }
-        next
-    }
-    {
-        gsub(/ /,"",\$seqR)
-        print ">"\$pool"__"\$rep"__"\$label2"__"\$ngs"\\n"\$seqR >> "${input_dir}/metadata_R.fasta"
-    }
-    ' "${metadata_csv}"
+    cp "${metadata_f}" "${input_dir}/metadata_F.fasta"
+    cp "${metadata_r}" "${input_dir}/metadata_R.fasta"
     """
 }
 
