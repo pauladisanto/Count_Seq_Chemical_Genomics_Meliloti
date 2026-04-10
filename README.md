@@ -21,10 +21,11 @@ The workflow is designed to:
 Run the workflow with:
 
 ```bash
-nextflow run main.nf \
-  --input_dir path/to/work_folder \
-  --metadata_csv path/to/MetaDataMeliloti.csv \
-  --salmon_fasta path/to/H_signatures_unique.fasta
+  nextflow run path/to/Nextflow_pipeline/main.nf \
+  --input_dir /path/to/Test_complete_sequences \
+  --metadata_f /path/to/Nextflow_pipeline/metadata_F.fasta \
+  --metadata_r path/to/Nextflow_pipeline/metadata_R.fasta \
+  --salmon_fasta path/to/H_signatures_unique.fasta 
 
 ```
 ##  Required Inputs
