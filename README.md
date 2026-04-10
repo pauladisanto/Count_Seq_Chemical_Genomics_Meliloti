@@ -38,12 +38,12 @@ Path to your working directory.
 - It will also be used to store all intermediate and final outputs  
 - You can choose any location depending on your system setup 
 
-### `--metadata_csv`
+### `--metadata`
 
-Path to the metadata file describing tag primers used in the experiment.
+Path to the metadata files contaning tag primers used in the experiment (PCR primers).
 
-A template CSV file is included in this repository
-Required for correct sample identification and processing
+fasta template files are included in this repository
+Required for correct sample identification and processing when running cutadapt
 
 ### `--salmon_fasta`
 
