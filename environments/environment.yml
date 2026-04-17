@@ -1,0 +1,12 @@
+name: meliloti_nf
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - trim-galore
+  - fastqc
+  - cutadapt
+  - multiqc
+  - bbmap
+  - salmon

@@ -1,0 +1,23 @@
+Bootstrap: docker
+From: continuumio/miniconda3
+
+%files
+    environment.yml /environment.yml
+
+%post
+    set -e
+
+    . /opt/conda/etc/profile.d/conda.sh
+
+    conda env create -f /environment.yml
+    conda clean -a -y
+
+    echo '. /opt/conda/etc/profile.d/conda.sh' >> /environment
+    echo 'conda activate meliloti_nf' >> /environment
+
+%environment
+    . /opt/conda/etc/profile.d/conda.sh
+    conda activate meliloti_nf
+
+%runscript
+    exec "$@"

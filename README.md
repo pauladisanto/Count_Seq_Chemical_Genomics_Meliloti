@@ -56,3 +56,47 @@ Only H signatures are analysed in this workflow
 BASH scripts were developed using a template script written by Sunniva Sigurdardóttir (GitHub: sunnivass)
 
 For any questions, you can contact me at: gdisantomeztler@gmail.com
+
+### Environment
+
+Option 1 — Conda environment
+
+Create and activate the environment:
+```bash
+conda env create -f environment.yml
+conda activate meliloti_nf
+```
+Verify installation:
+```bash
+trim_galore --version
+fastqc --version
+cutadapt --version
+multiqc --version
+bbmap.sh --version
+salmon --version
+```
+
+Option 2 — Singularity container (recommended)
+
+Build the container from the definition file:
+```bash
+sudo singularity build meliloti_nf.sif meliloti_nf.def
+
+Run tools inside the container:
+
+singularity exec meliloti_nf.sif salmon --version
+singularity exec meliloti_nf.sif fastqc --version
+```
+Open an interactive shell:
+```bash
+singularity shell meliloti_nf.sif
+```
+
+Notes
+The .sif file is not included in this repository because it is a large binary file.
+Users can build it locally using the provided meliloti_nf.def.
+The container ensures consistent results across systems, especially on HPC clusters.
+
+Requirements
+Conda (for Option 1), or
+Singularity / Apptainer (for Option 2)
