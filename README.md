@@ -22,7 +22,7 @@ Run the workflow with:
 
 ```bash
 nextflow run path/to/Nextflow_pipeline/main.nf \
-    -c path/to/Nextflow_pipeline/nextflow.config \
+    -c path/to/nextflow.config \
     --input_dir /path/to/Test_complete_sequences \
     --metadata_f /path/to/Nextflow_pipeline/metadata_F.fasta \
     --metadata_r /path/to/Nextflow_pipeline/metadata_R.fasta \
@@ -43,13 +43,13 @@ Path to the working directory.
 
 ### `--metadata_f`
 
-Path to the FASTA file containing the forward barcode/tag sequences used during pool demultiplexing.
+Path to the FASTA file containing the forward tag sequences used during pool demultiplexing.
 
 A template file (`metadata_F.fasta`) is included in this repository.
 
 ### `--metadata_r`
 
-Path to the FASTA file containing the reverse barcode/tag sequences used during condition demultiplexing.
+Path to the FASTA file containing the reverse tag sequences used during condition demultiplexing.
 
 A template file (`metadata_R.fasta`) is included in this repository.
 
@@ -135,16 +135,6 @@ This can be adjusted using:
 nextflow run main.nf \
     --ncpus <N>
 
-Recommended values:
-
-| Hardware | Suggested CPUs |
-|-----------|----------------|
-| Older laptop (2–4 cores) | 2 |
-| Modern laptop (4–8 cores) | 4 |
-| High-end workstation | 6–8 |
-| HPC cluster | According to allocated resources |
-
-Increasing the number of CPUs may reduce runtime, but gains are workload-dependent and may show diminishing returns.
 
 ## Configurable Parameters
 
