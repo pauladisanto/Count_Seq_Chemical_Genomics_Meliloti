@@ -16,41 +16,65 @@ The workflow is designed to:
 
 ---
 
-##  Usage
+## Usage
 
 Run the workflow with:
 
 ```bash
-  nextflow run path/to/Nextflow_pipeline/main.nf \
-  --input_dir /path/to/Test_complete_sequences \
-  --metadata_f /path/to/Nextflow_pipeline/metadata_F.fasta \
-  --metadata_r path/to/Nextflow_pipeline/metadata_R.fasta \
-  --salmon_fasta path/to/H_signatures_unique.fasta 
-
+nextflow run path/to/Nextflow_pipeline/main.nf \
+    -c path/to/Nextflow_pipeline/nextflow.config \
+    --input_dir /path/to/Test_complete_sequences \
+    --metadata_f /path/to/Nextflow_pipeline/metadata_F.fasta \
+    --metadata_r /path/to/Nextflow_pipeline/metadata_R.fasta \
+    --salmon_fasta /path/to/H_signatures_unique.fasta
 ```
-##  Required Inputs
+
+The `nextflow.config` file contains workflow settings such as CPU allocation, trimming thresholds, Cutadapt parameters, and Salmon quantification options. Default values can be modified directly in the configuration file or overridden from the command line.
+
+## Required Inputs
 
 ### `--input_dir`
 
-Path to your working directory.
+Path to the working directory.
 
-- This directory contains your input sequencing files  
-- It will also be used to store all intermediate and final outputs  
-- You can choose any location depending on your system setup 
+* Contains the input sequencing files (`FASTQ.gz`)
+* Stores all intermediate files generated during the workflow
+* Stores the final output files and reports
 
-### `--metadata`
+### `--metadata_f`
 
-Path to the metadata files contaning tag primers used in the experiment (PCR primers).
+Path to the FASTA file containing the forward barcode/tag sequences used during pool demultiplexing.
 
-fasta template files are included in this repository
-Required for correct sample identification and processing when running cutadapt
+A template file (`metadata_F.fasta`) is included in this repository.
+
+### `--metadata_r`
+
+Path to the FASTA file containing the reverse barcode/tag sequences used during condition demultiplexing.
+
+A template file (`metadata_R.fasta`) is included in this repository.
 
 ### `--salmon_fasta`
 
-Path to the FASTA file containing the unique H signatures.
+Path to the FASTA file containing the unique H signatures used for quantification.
 
-Used to build the Salmon index
-Only H signatures are analysed in this workflow
+This file is used to build the Salmon index before quantification.
+
+Only H signatures are analysed in this workflow.
+
+### `-c nextflow.config`
+
+Path to the Nextflow configuration file.
+
+This file defines configurable workflow parameters, including:
+
+* Number of CPU threads (`ncpus`)
+* Trim Galore quality threshold
+* Cutadapt overlap and mismatch settings
+* Minimum read length after demultiplexing
+* Salmon quantification settings
+* Common sequence trimming parameters
+
+Default parameter values were tested on an AMD Ryzen 7 PRO 7840U laptop (8 cores, 16 threads, 32 GB RAM) and provide a good balance between runtime and resource usage on typical desktop and laptop systems.
 
 
 BASH scripts were developed using a template script written by Sunniva Sigurdardóttir (GitHub: sunnivass)
@@ -100,3 +124,80 @@ The container ensures consistent results across systems, especially on HPC clust
 Requirements
 Conda (for Option 1), or
 Singularity / Apptainer (for Option 2)
+
+
+## CPU Usage
+
+The workflow uses 4 CPU threads by default.
+
+This can be adjusted using:
+
+nextflow run main.nf \
+    --ncpus <N>
+
+Recommended values:
+
+| Hardware | Suggested CPUs |
+|-----------|----------------|
+| Older laptop (2–4 cores) | 2 |
+| Modern laptop (4–8 cores) | 4 |
+| High-end workstation | 6–8 |
+| HPC cluster | According to allocated resources |
+
+Increasing the number of CPUs may reduce runtime, but gains are workload-dependent and may show diminishing returns.
+
+## Configurable Parameters
+
+The workflow uses a `nextflow.config` file to centralize commonly modified parameters. This allows users to adjust computational resources and analysis settings without modifying the workflow source code.
+
+### Computational Resources
+
+| Parameter | Default | Description                                                                       |
+| --------- | ------- | --------------------------------------------------------------------------------- |
+| `ncpus`   | `4`     | Number of CPU threads used by FastQC, Trim Galore, BBMerge, Cutadapt, and Salmon. |
+
+Recommended values:
+
+| Hardware                  | Suggested `ncpus`                |
+| ------------------------- | -------------------------------- |
+| Older laptop (2–4 cores)  | 2                                |
+| Modern laptop (4–8 cores) | 4                                |
+| High-end workstation      | 6–8                              |
+| HPC cluster               | According to allocated resources |
+
+### Quality Trimming
+
+| Parameter      | Default | Description                                         |
+| -------------- | ------- | --------------------------------------------------- |
+| `trim_quality` | `30`    | Phred quality threshold used by Trim Galore (`-q`). |
+
+### Pool Demultiplexing (Forward Tags)
+
+| Parameter             | Default | Description                                        |
+| --------------------- | ------- | -------------------------------------------------- |
+| `cutadapt_error_rate` | `0`     | Allowed mismatch rate during pool demultiplexing.  |
+| `cutadapt_overlap`    | `26`    | Minimum overlap required between barcode and read. |
+
+### Condition Demultiplexing (Reverse Tags)
+
+| Parameter              | Default | Description                                            |
+| ---------------------- | ------- | ------------------------------------------------------ |
+| `condition_error_rate` | `0`     | Allowed mismatch rate during condition demultiplexing. |
+| `condition_overlap`    | `26`    | Minimum overlap required between barcode and read.     |
+| `condition_min_length` | `20`    | Minimum read length retained after demultiplexing.     |
+
+### Salmon Quantification
+
+| Parameter                   | Default | Description                                              |
+| --------------------------- | ------- | -------------------------------------------------------- |
+| `salmon_libtype`            | `"A"`   | Automatic library type detection.                        |
+| `salmon_min_assigned_frags` | `1`     | Minimum number of assigned fragments required by Salmon. |
+
+### Common Sequence Removal
+
+| Parameter                | Default                          | Description                                           |
+| ------------------------ | -------------------------------- | ----------------------------------------------------- |
+| `common_5prime_sequence` | `TACTAGCTCTACGACGGTCCACCTAAGCTT` | 5' common sequence removed prior to quantification.   |
+| `common_3prime_sequence` | `AAGCTT`                         | Sequence used to trim reads after the cloning site.   |
+| `common_error_rate`      | `0`                              | Allowed mismatch rate during common sequence removal. |
+

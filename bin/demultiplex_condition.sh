@@ -2,13 +2,20 @@
 
 set -euo pipefail
 
-ncpus=7
+ncpus=1
+cutadapt_error_rate=0
+cutadapt_overlap=26
+min_length=20
 
-while getopts "p:" flag; do
+while getopts "p:t:e:O:m:" flag; do
     case "${flag}" in
         p) pdir="${OPTARG}" ;;
+        t) ncpus="${OPTARG}" ;;
+        e) cutadapt_error_rate="${OPTARG}" ;;
+        O) cutadapt_overlap="${OPTARG}" ;;
+        m) min_length="${OPTARG}" ;;
         *)
-            echo "Usage: $0 -p <project_directory>"
+            echo "Usage: $0 -p <project_directory> -t <threads> -e <error_rate> -O <overlap> -m <min_length>"
             exit 1
             ;;
     esac
@@ -58,13 +65,14 @@ for f in "${files[@]}"; do
 
     cutadapt \
         -b "file:${meta_fasta}" \
-        -e 0 \
-        -O 26 \
-        --minimum-length 20 \
+        -e "${cutadapt_error_rate}" \
+        -O "${cutadapt_overlap}" \
+        --minimum-length "${min_length}" \
         --rename='{id} {comment} replicate={adapter_name}' \
         -j "${ncpus}" \
         -o "${pdir}/demultiplexed_CONDITION/{name}_${name_seq%.fastq.gz}_demux_a.fastq.gz" \
         "${f}"
+
 
     outputs=( "${pdir}"/demultiplexed_CONDITION/*_"${name_seq%.fastq.gz}"_demux_a.fastq.gz )
 

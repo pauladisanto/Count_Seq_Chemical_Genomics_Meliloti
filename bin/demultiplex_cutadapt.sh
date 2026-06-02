@@ -2,13 +2,18 @@
 
 set -euo pipefail
 
-ncpus=7
+ncpus=1
+cutadapt_error_rate=0
+cutadapt_overlap=26
 
-while getopts "p:" flag; do
+while getopts "p:t:e:O:" flag; do
     case "${flag}" in
         p) pdir="${OPTARG}" ;;
+        t) ncpus="${OPTARG}" ;;
+        e) cutadapt_error_rate="${OPTARG}" ;;
+        O) cutadapt_overlap="${OPTARG}" ;;
         *)
-            echo "Usage: $0 -p <project_directory>"
+            echo "Usage: $0 -p <project_directory> -t <threads> -e <error_rate> -O <overlap>"
             exit 1
             ;;
     esac
@@ -55,8 +60,8 @@ for merged in "${merged_files[@]}"; do
 
     cutadapt \
         -g "file:${meta_fasta}" \
-        -e 0 \
-        -O 26 \
+        -e "${cutadapt_error_rate}" \
+        -O "${cutadapt_overlap}" \
         --rename='{id} {comment} sample={adapter_name}' \
         --rc \
         -j "${ncpus}" \

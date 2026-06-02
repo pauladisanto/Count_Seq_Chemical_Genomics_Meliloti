@@ -2,11 +2,18 @@
 
 set -euo pipefail
 
-ncpus=7
+ncpus=1
+common_5prime_sequence="TACTAGCTCTACGACGGTCCACCTAAGCTT"
+common_3prime_sequence="AAGCTT"
+common_error_rate=0
 
-while getopts "p:" flag; do
+while getopts "p:t:g:a:e:" flag; do
     case "${flag}" in
         p) pdir="${OPTARG}" ;;
+        t) ncpus="${OPTARG}" ;;
+        g) common_5prime_sequence="${OPTARG}" ;;
+        a) common_3prime_sequence="${OPTARG}" ;;
+        e) common_error_rate="${OPTARG}" ;;
     esac
 done
 
@@ -57,8 +64,8 @@ for fn in "${input_files[@]}"; do
 
     echo "---- Step 1: remove 5' common sequence ----"
     cutadapt \
-        -g ^TACTAGCTCTACGACGGTCCACCTAAGCTT \
-        -e 0 \
+        -g "^${common_5prime_sequence}" \
+        -e "${common_error_rate}" \
         -j "${ncpus}" \
         -o "${intermediate}" \
         "${fn}"
@@ -77,8 +84,8 @@ for fn in "${input_files[@]}"; do
 
     echo "---- Step 2: remove sequence after AAGCTT ----"
     cutadapt \
-        -a AAGCTT \
-        -e 0 \
+        -a "${common_3prime_sequence}" \
+        -e "${common_error_rate}" \
         -j "${ncpus}" \
         -o "${final_out}" \
         "${intermediate}"

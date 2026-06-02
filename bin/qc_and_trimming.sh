@@ -2,11 +2,14 @@
 
 set -euo pipefail
 
-ncpus=7
+ncpus=1
+trim_quality=30
 
-while getopts "p:" flag; do
+while getopts "p:t:q:" flag; do
     case "${flag}" in
         p) pdir="${OPTARG}" ;;
+        t) ncpus="${OPTARG}" ;;
+        q) trim_quality="${OPTARG}" ;;
     esac
 done
 
@@ -16,13 +19,13 @@ if [ -z "${pdir:-}" ]; then
 fi
 
 samp=$(basename "${pdir}")
-echo ">>> Processing batch ${samp} <<<"
+echo ">>> Processing batch ${samp} using ${ncpus} <<<"
 
 mkdir -p "${pdir}/fastqc" "${pdir}/trimmed"
 
 echo -e "\n\n\n >>> FastQC reports <<< \n\n\n"
 
-fastqc -t 8 "${pdir}"/*_1.fastq.gz "${pdir}"/*_2.fastq.gz -o "${pdir}/fastqc"
+fastqc -t "${ncpus}" "${pdir}"/*_1.fastq.gz "${pdir}"/*_2.fastq.gz -o "${pdir}/fastqc"
 
 echo -e "\n\n\n >>> TRIMMING of bad quality bases <<< \n\n\n"
 
@@ -45,9 +48,9 @@ for r1 in "${r1_files[@]}"; do
 
     base=$(basename "${r1}" _1.fastq.gz)
     echo -e "\n\n >> Trimming sample ${base} << \n\n"
-
+ 
     trim_galore \
-        -q 30 \
+        -q "${trim_quality}" \
         -j "${ncpus}" \
         --fastqc \
         --trim-n \

@@ -2,11 +2,12 @@
 
 set -euo pipefail
 
-ncpus=7
+ncpus=1
 
-while getopts "p:" flag; do
+while getopts "p:t:" flag; do
     case "${flag}" in
         p) pdir="${OPTARG}" ;;
+        t) ncpus="${OPTARG}" ;;
     esac
 done
 

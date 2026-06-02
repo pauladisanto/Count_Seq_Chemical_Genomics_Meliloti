@@ -1,10 +1,3 @@
-nextflow.enable.dsl=2
-
-params.input_dir         = null
-params.metadata_f        = null
-params.metadata_r        = null
-params.salmon_fasta      = null
-
 if ( !params.input_dir ) {
     error "Please provide --input_dir"
 }
@@ -20,6 +13,19 @@ if ( !params.metadata_r ) {
 if ( !params.salmon_fasta ) {
     error "Please provide --salmon_fasta"
 }
+
+println "Config file ncpus = ${params.ncpus}"
+println "Config file trim_quality = ${params.trim_quality}"
+println "cutadapt_error_rate = ${params.cutadapt_error_rate}"
+println "cutadapt_overlap    = ${params.cutadapt_overlap}"
+println "condition_error_rate = ${params.condition_error_rate}"
+println "condition_overlap    = ${params.condition_overlap}"
+println "condition_min_length = ${params.condition_min_length}"
+println "salmon_libtype             = ${params.salmon_libtype}"
+println "salmon_min_assigned_frags  = ${params.salmon_min_assigned_frags}"
+println "common_5prime_sequence = ${params.common_5prime_sequence}"
+println "common_3prime_sequence = ${params.common_3prime_sequence}"
+println "common_error_rate      = ${params.common_error_rate}"
 
 workflow {
     Channel.of(params.input_dir).set { input_dir_ch }
@@ -68,6 +74,7 @@ process CREATE_DIRS {
 process QC_AND_TRIMMING {
 
     tag "${input_dir}"
+    cpus params.ncpus
 
     input:
     val input_dir
@@ -77,7 +84,10 @@ process QC_AND_TRIMMING {
 
     script:
     """
-    bash ${projectDir}/bin/2_qc_and_trimming.sh -p "${input_dir}"
+    bash ${projectDir}/bin/qc_and_trimming.sh \
+        -p "${input_dir}" \
+        -t ${task.cpus} \
+        -q ${params.trim_quality}
     """
 }
 
@@ -85,6 +95,8 @@ process BBMERGE_READS {
 
     tag "${input_dir}"
 
+    cpus params.ncpus
+
     input:
     val input_dir
 
@@ -93,7 +105,9 @@ process BBMERGE_READS {
 
     script:
     """
-    bash ${projectDir}/bin/5_bbmerge.sh -p "${input_dir}"
+    bash ${projectDir}/bin/bbmerge.sh \
+        -p "${input_dir}" \
+        -t ${task.cpus}
     """
 }
 
@@ -117,6 +131,7 @@ process PREPARE_METADATA_FASTA {
 process DEMULTIPLEX_POOL {
 
     tag "${input_dir}"
+    cpus params.ncpus
 
     input:
     val input_dir
@@ -126,13 +141,18 @@ process DEMULTIPLEX_POOL {
 
     script:
     """
-    bash ${projectDir}/bin/6_demultiplex_cutadapt.sh -p "${input_dir}"
+    bash ${projectDir}/bin/demultiplex_cutadapt.sh \
+        -p "${input_dir}" \
+        -t ${task.cpus} \
+        -e ${params.cutadapt_error_rate} \
+        -O ${params.cutadapt_overlap}
     """
 }
 
 process DEMULTIPLEX_CONDITION {
 
     tag "${input_dir}"
+    cpus params.ncpus
 
     input:
     val input_dir
@@ -142,13 +162,19 @@ process DEMULTIPLEX_CONDITION {
 
     script:
     """
-    bash ${projectDir}/bin/7_demultiplex_condition.sh -p "${input_dir}"
+    bash ${projectDir}/bin/demultiplex_condition.sh \
+        -p "${input_dir}" \
+        -t ${task.cpus} \
+        -e ${params.condition_error_rate} \
+        -O ${params.condition_overlap} \
+        -m ${params.condition_min_length}
     """
 }
 
 process REMOVE_COMMON_SEQUENCES {
 
     tag "${input_dir}"
+    cpus params.ncpus
 
     input:
     val input_dir
@@ -158,7 +184,12 @@ process REMOVE_COMMON_SEQUENCES {
 
     script:
     """
-    bash ${projectDir}/bin/8_remove_common_sequences.sh -p "${input_dir}"
+    bash ${projectDir}/bin/remove_common_sequences.sh \
+        -p "${input_dir}" \
+        -t ${task.cpus} \
+        -g ${params.common_5prime_sequence} \
+        -a ${params.common_3prime_sequence} \
+        -e ${params.common_error_rate}
     """
 }
 
@@ -186,6 +217,7 @@ process BUILD_SALMON_INDEX {
 process QC_SALMON {
 
     tag "${input_dir}"
+    cpus params.ncpus
 
     input:
     tuple val(input_dir), val(salmon_index)
@@ -195,7 +227,12 @@ process QC_SALMON {
 
     script:
     """
-    bash ${projectDir}/bin/9_qc_salmon.sh -p "${input_dir}" -i "${salmon_index}"
+    bash ${projectDir}/bin/qc_salmon.sh \
+        -p "${input_dir}" \
+        -i "${salmon_index}" \
+        -t ${task.cpus} \
+        -l ${params.salmon_libtype} \
+        -m ${params.salmon_min_assigned_frags}
     """
 }
 
@@ -211,7 +248,7 @@ process RUN_MULTIQC {
 
     script:
     """
-    bash ${projectDir}/bin/3_multiqc.sh -p "${input_dir}"
+    bash ${projectDir}/bin/multiqc.sh -p "${input_dir}"
     """
 }
 
@@ -227,6 +264,6 @@ process COLLECT_GOOD_QUANTS {
 
     script:
     """
-    python3 ${projectDir}/bin/10_collect_good_quants.py -p "${input_dir}"
+    python3 ${projectDir}/bin/collect_good_quants.py -p "${input_dir}"
     """
 }

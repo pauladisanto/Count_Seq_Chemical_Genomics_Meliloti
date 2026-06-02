@@ -2,14 +2,19 @@
 
 set -euo pipefail
 
-ncpus=7
+ncpus=1
+salmon_libtype="A"
+salmon_min_assigned_frags=1
 
-while getopts "p:i:" flag; do
+while getopts "p:i:t:l:m:" flag; do
     case "${flag}" in
         p) pdir="${OPTARG}" ;;
         i) uptag_index="${OPTARG}" ;;
+        t) ncpus="${OPTARG}" ;;
+        l) salmon_libtype="${OPTARG}" ;;
+        m) salmon_min_assigned_frags="${OPTARG}" ;;
         *)
-            echo "Usage: $0 -p <project_directory> -i <salmon_index>"
+            echo "Usage: $0 -p <project_directory> -i <salmon_index> -t <threads> -l <libtype> -m <min_assigned_frags>"
             exit 1
             ;;
     esac
@@ -71,12 +76,12 @@ for fn in "${input_files[@]}"; do
 
     if salmon quant \
         -i "${uptag_index}" \
-        -l A \
+        -l "${salmon_libtype}" \
         -r "${fn}" \
         -p "${ncpus}" \
         --validateMappings \
         --noLengthCorrection \
-        --minAssignedFrags 1 \
+        --minAssignedFrags "${salmon_min_assigned_frags}" \
         --output "${outdir}"
     then
         if [ -f "${outdir}/quant.sf" ]; then
