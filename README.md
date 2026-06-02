@@ -126,15 +126,6 @@ Conda (for Option 1), or
 Singularity / Apptainer (for Option 2)
 
 
-## CPU Usage
-
-The workflow uses 4 CPU threads by default.
-
-This can be adjusted using:
-
-nextflow run main.nf \
-    --ncpus <N>
-
 
 ## Configurable Parameters
 
