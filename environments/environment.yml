@@ -1,12 +1,15 @@
 name: meliloti_nf
+
 channels:
   - conda-forge
   - bioconda
   - defaults
+
 dependencies:
-  - trim-galore
-  - fastqc
-  - cutadapt
-  - multiqc
-  - bbmap
-  - salmon
+  - nextflow=25.04
+  - trim-galore=0.6
+  - fastqc=0.12
+  - cutadapt=5
+  - multiqc=1.33
+  - bbmap=38
+  - salmon=1.11
