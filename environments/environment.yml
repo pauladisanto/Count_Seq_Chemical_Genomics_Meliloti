@@ -13,4 +13,4 @@ dependencies:
   - cutadapt=5
   - multiqc=1.33
   - bbmap=38
-  - salmon=1.11
+  - salmon=1.10.2
