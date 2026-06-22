@@ -91,7 +91,10 @@ conda env create -f environment.yml
 conda activate meliloti_nf
 ```
 Verify installation:
+
 ```bash
+nextflow -version
+java -version
 trim_galore --version
 fastqc --version
 cutadapt --version
@@ -100,22 +103,49 @@ bbmap.sh --version
 salmon --version
 ```
 
-Option 2 — Singularity container (recommended)
+## Option 2 — Singularity container (recommended)
 
-Build the container from the definition file:
-The files are located in the folder environments
+A Singularity definition file (`meliloti_nf.def`) and the corresponding Conda environment specification (`environment.yml`) are provided in the `environments/` folder.
+
+### Build the container
+
+From the `environments/` directory, build the container with:
+
 ```bash
 sudo singularity build meliloti_nf.sif meliloti_nf.def
-
-Run tools inside the container:
-
-singularity exec meliloti_nf.sif salmon --version
-singularity exec meliloti_nf.sif fastqc --version
 ```
-Open an interactive shell:
+
+### Verify the container
+
+Check that the main tools are available inside the container:
+
+```bash
+singularity exec meliloti_nf.sif nextflow -version
+singularity exec meliloti_nf.sif trim_galore --version
+singularity exec meliloti_nf.sif fastqc --version
+singularity exec meliloti_nf.sif cutadapt --version
+singularity exec meliloti_nf.sif multiqc --version
+singularity exec meliloti_nf.sif bbmap.sh --version
+singularity exec meliloti_nf.sif salmon --version
+```
+
+### Open an interactive shell
+
+To enter the container interactively:
+
 ```bash
 singularity shell meliloti_nf.sif
 ```
+
+Once inside the container, all workflow dependencies are available and can be used directly:
+
+```bash
+nextflow -version
+salmon --version
+fastqc --version
+```
+
+> **Note:** If your system uses **Apptainer** instead of **Singularity**, simply replace `singularity` with `apptainer`; the commands are identical.
 
 Notes
 The .sif file is not included in this repository because it is a large binary file.
