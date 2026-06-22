@@ -87,7 +87,7 @@ Option 1 — Conda environment
 
 Create and activate the environment:
 ```bash
-conda env create -f environments/environment.yml
+conda env create -f environment.yml
 conda activate meliloti_nf
 ```
 Verify installation:
@@ -103,8 +103,9 @@ salmon --version
 Option 2 — Singularity container (recommended)
 
 Build the container from the definition file:
+The files are located in the folder environments
 ```bash
-sudo singularity build environments/meliloti_nf.sif meliloti_nf.def
+sudo singularity build meliloti_nf.sif meliloti_nf.def
 
 Run tools inside the container:
 
