@@ -7,17 +7,22 @@ From: continuumio/miniconda3
 %post
     set -e
 
-    . /opt/conda/etc/profile.d/conda.sh
+    apt-get update && apt-get install -y locales
+    locale-gen C.UTF-8 || true
+    locale-gen en_US.UTF-8
+    update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
 
+    . /opt/conda/etc/profile.d/conda.sh
     conda env create -f /environment.yml
     conda clean -a -y
 
-    echo '. /opt/conda/etc/profile.d/conda.sh' >> /environment
-    echo 'conda activate meliloti_nf' >> /environment
-
 %environment
-    . /opt/conda/etc/profile.d/conda.sh
-    conda activate meliloti_nf
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+    export PATH=/opt/conda/envs/meliloti_nf/bin:$PATH
+    export CONDA_DEFAULT_ENV=meliloti_nf
 
 %runscript
     exec "$@"

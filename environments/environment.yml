@@ -6,6 +6,7 @@ channels:
   - defaults
 
 dependencies:
+  - openjdk=17
   - nextflow=25.04
   - trim-galore=0.6
   - fastqc=0.12
