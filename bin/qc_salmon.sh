@@ -36,8 +36,6 @@ quant_root="${pdir}/quants"
 
 echo ">>> Processing batch ${samp} <<<"
 
-mkdir -p "${quant_root}"
-
 echo -e "\n\n\n >>> SALMON QUANTIFICATION PER FILE <<< \n\n\n"
 
 if [ ! -d "${seq_dir}" ]; then

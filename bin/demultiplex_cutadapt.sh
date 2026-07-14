@@ -27,8 +27,6 @@ fi
 samp=$(basename "${pdir}")
 echo ">>> Processing batch ${samp} <<<"
 
-mkdir -p "${pdir}/demultiplexed_POOL"
-
 meta_fasta="${pdir}/metadata_F.fasta"
 
 if [ ! -f "${meta_fasta}" ]; then

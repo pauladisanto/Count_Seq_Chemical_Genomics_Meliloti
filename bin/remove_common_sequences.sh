@@ -25,8 +25,6 @@ fi
 samp=$(basename "${pdir}")
 echo ">>> Processing batch ${samp} <<<"
 
-mkdir -p "${pdir}/sequence_cutted"
-
 valid_outputs=0
 
 echo -e "\n\n >>> REMOVE COMMON SEQUENCES <<< \n\n"

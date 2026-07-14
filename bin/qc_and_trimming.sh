@@ -21,8 +21,6 @@ fi
 samp=$(basename "${pdir}")
 echo ">>> Processing batch ${samp} using ${ncpus} <<<"
 
-mkdir -p "${pdir}/fastqc" "${pdir}/trimmed"
-
 echo -e "\n\n\n >>> FastQC reports <<< \n\n\n"
 
 fastqc -t "${ncpus}" "${pdir}"/*_1.fastq.gz "${pdir}"/*_2.fastq.gz -o "${pdir}/fastqc"

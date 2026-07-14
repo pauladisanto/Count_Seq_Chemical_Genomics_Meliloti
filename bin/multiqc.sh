@@ -15,8 +15,6 @@ fi
 
 echo ">>> Running MultiQC <<<"
 
-mkdir -p "${pdir}/multiqc"
-
 multiqc "${pdir}" -o "${pdir}/multiqc"
 
 echo ">>> FINISHED MultiQC <<<"

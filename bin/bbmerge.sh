@@ -19,8 +19,6 @@ fi
 samp=$(basename "${pdir}")
 echo ">>> Processing batch ${samp} <<<"
 
-mkdir -p "${pdir}/merged"
-
 shopt -s nullglob
 r1_files=( "${pdir}/trimmed"/*_1_val_1.fq.gz )
 
