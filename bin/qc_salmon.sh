@@ -77,8 +77,9 @@ for fn in "${input_files[@]}"; do
         -l "${salmon_libtype}" \
         -r "${fn}" \
         -p "${ncpus}" \
-        --validateMappings \
         --noLengthCorrection \
+        --fullLengthAlignment \
+        --numAuxModelSamples 100000 \
         --minAssignedFrags "${salmon_min_assigned_frags}" \
         --output "${outdir}"
     then
@@ -90,6 +91,6 @@ for fn in "${input_files[@]}"; do
     else
         echo "FAILED: salmon quant failed" > "${outdir}/STATUS.txt"
     fi
-done
+    done
 
-echo -e "\n\n\n >>> FINISHED SALMON <<< \n\n\n"
+    echo -e "\n\n\n >>> FINISHED SALMON <<< \n\n\n"
