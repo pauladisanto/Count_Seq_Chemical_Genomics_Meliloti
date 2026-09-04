@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: continuumio/miniconda3
+From: continuumio/miniconda3@sha256:a297bed7a4be5d57720fc7b99d700131048ced4205a8e590d514d8d5d000bd6b
 
 %files
     environment.yml /environment.yml
