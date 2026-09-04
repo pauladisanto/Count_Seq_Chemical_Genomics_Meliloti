@@ -7,10 +7,10 @@ channels:
 
 dependencies:
   - openjdk=17
-  - nextflow=25.04
-  - trim-galore=0.6
-  - fastqc=0.12
-  - cutadapt=5
+  - nextflow=25.04.8
+  - trim-galore=0.6.11
+  - fastqc=0.12.1
+  - cutadapt=5.2
   - multiqc=1.33
-  - bbmap=38
+  - bbmap=38.99
   - salmon=1.10.2
