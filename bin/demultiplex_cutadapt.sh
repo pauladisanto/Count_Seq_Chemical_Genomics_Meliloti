@@ -4,7 +4,7 @@ set -euo pipefail
 
 ncpus=1
 cutadapt_error_rate=0
-cutadapt_overlap=26
+cutadapt_overlap=25
 
 while getopts "p:t:e:O:" flag; do
     case "${flag}" in

@@ -82,7 +82,7 @@ for fn in "${input_files[@]}"; do
 
     echo "---- Step 2: remove sequence after AAGCTT ----"
     cutadapt \
-        -a "${common_3prime_sequence}" \
+        -a "${common_3prime_sequence}\$" \
         -e "${common_error_rate}" \
         -j "${ncpus}" \
         -o "${final_out}" \

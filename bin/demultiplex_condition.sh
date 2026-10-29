@@ -4,7 +4,7 @@ set -euo pipefail
 
 ncpus=1
 cutadapt_error_rate=0
-cutadapt_overlap=26
+cutadapt_overlap=25
 min_length=20
 
 while getopts "p:t:e:O:m:" flag; do
